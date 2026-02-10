@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+
+#define packetCount 10
+
+int main()
+{
+    srand(time(NULL));
+
+    int packets[packetCount];
+    int i, rate, bucketSize;
+    int remainingSize = 0;
+    int timeToTransmit, clk, op;
+
+    /* Generate random packet sizes */
+    for (i = 0; i < packetCount; i++)
+        packets[i] = (rand() % 6 + 1) * 10;   // 10–60 bytes
+
+    printf("Enter the Output rate (bytes per unit time): ");
+    scanf("%d", &rate);
+
+    printf("Enter the Bucket Size (bytes): ");
+    scanf("%d", &bucketSize);
+
+    i = 0;
+
+    while (i < packetCount || remainingSize > 0)
+    {
+        /* Incoming packet handling */
+        if (i < packetCount)
+        {
+            printf("\nIncoming Packet size : %d bytes", packets[i]);
+
+            if (packets[i] + remainingSize > bucketSize)
+            {
+                printf("\nBucket overflow! Packet of %d bytes dropped.\n", packets[i]);
+            }
+            else
+            {
+                remainingSize += packets[i];
+                printf("\nBytes in bucket : %d\n", remainingSize);
+            }
+            i++;
+        }
+
+        /* Transmission phase */
+        timeToTransmit = (rand() % 4 + 1) * 10;
+        printf("\nTransmission window : %d units\n", timeToTransmit);
+
+        for (clk = 10; clk <= timeToTransmit; clk += 10)
+        {
+            sleep(1);
+
+            if (remainingSize > 0)
+            {
+                if (remainingSize <= rate)
+                {
+                    op = remainingSize;
+                    remainingSize = 0;
+                }
+                else
+                {
+                    op = rate;
+                    remainingSize -= rate;
+                }
+
+                printf("Transmitted %d bytes | Remaining in bucket: %d bytes\n",
+                       op, remainingSize);
+            }
+            else
+            {
+                printf("No data to transmit at this time unit\n");
+            }
+        }
+    }
+
+    printf("\nAll packets processed. Bucket empty.\n");
+    return 0;
+}
