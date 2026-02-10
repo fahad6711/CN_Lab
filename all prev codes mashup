@@ -1,0 +1,281 @@
+udp_server.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server, client;
+    char buffer[1024];
+    socklen_t len = sizeof(client);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5555);
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    bind(sockfd, (struct sockaddr*)&server, sizeof(server));
+
+    recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)&client, &len);
+    sendto(sockfd, "ACK", 4, 0, (struct sockaddr*)&client, len);
+
+    close(sockfd);
+    return 0;
+}
+udp_client.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in addr;
+    char buffer[1024] = "Hello Server";
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(5555);
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    sendto(sockfd, buffer, strlen(buffer)+1, 0,
+           (struct sockaddr*)&addr, sizeof(addr));
+
+    recvfrom(sockfd, buffer, 1024, 0, NULL, NULL);
+
+    close(sockfd);
+    return 0;
+}
+`sw_server.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server, client;
+    char buffer[1024];
+    socklen_t len = sizeof(client);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5555);
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    bind(sockfd, (struct sockaddr*)&server, sizeof(server));
+
+    while (1) {
+        recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)&client, &len);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&client, len);
+    }
+}
+`sw_client.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in addr;
+    char buffer[1024];
+    socklen_t len = sizeof(addr);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(5555);
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    for (int i = 1; i <= 5; i++) {
+        sprintf(buffer, "%d", i);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&addr, len);
+        recvfrom(sockfd, buffer, 1024, 0, NULL, NULL);
+        sleep(1);
+    }
+}
+`gbn_server.c`
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server, client;
+    char buffer[1024];
+    socklen_t len = sizeof(client);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5555);
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    bind(sockfd, (struct sockaddr*)&server, sizeof(server));
+
+    while (1) {
+        recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)&client, &len);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&client, len);
+    }
+}
+`gbn_client.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in addr;
+    char buffer[1024];
+    socklen_t len = sizeof(addr);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(5555);
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    for (int i = 1; i <= 5; i++) {
+        sprintf(buffer, "%d", i);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&addr, len);
+        recvfrom(sockfd, buffer, 1024, 0, NULL, NULL);
+    }
+}
+```
+
+---
+
+ `sr_server.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server, client;
+    char buffer[1024];
+    socklen_t len = sizeof(client);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5555);
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    bind(sockfd, (struct sockaddr*)&server, sizeof(server));
+
+    while (1) {
+        recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)&client, &len);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&client, len);
+    }
+}
+sr_client.c`
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int sockfd;
+    struct sockaddr_in addr;
+    char buffer[1024];
+    socklen_t len = sizeof(addr);
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(5555);
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    for (int i = 1; i <= 5; i++) {
+        sprintf(buffer, "%d", i);
+        sendto(sockfd, buffer, strlen(buffer)+1, 0,
+               (struct sockaddr*)&addr, len);
+        recvfrom(sockfd, buffer, 1024, 0, NULL, NULL);
+    }
+}
+```
+
+---
+
+`tcp_server.c`
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int server_sock, client_sock;
+    struct sockaddr_in server, client;
+    socklen_t len = sizeof(client);
+    char buffer[1024];
+
+    server_sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5555);
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    bind(server_sock, (struct sockaddr*)&server, sizeof(server));
+    listen(server_sock, 5);
+
+    client_sock = accept(server_sock, (struct sockaddr*)&client, &len);
+    recv(client_sock, buffer, 1024, 0);
+    send(client_sock, "HELLO CLIENT", 13, 0);
+
+    close(client_sock);
+    close(server_sock);
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+int main() {
+    int sock;
+    struct sockaddr_in addr;
+    char buffer[1024] = "HELLO SERVER";
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(5555);
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    connect(sock, (struct sockaddr*)&addr, sizeof(addr));
+    send(sock, buffer, strlen(buffer)+1, 0);
+    recv(sock, buffer, 1024, 0);
+
+    close(sock);
+    return 0;
+}
